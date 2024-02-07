@@ -6,8 +6,8 @@ if __name__ == '__main__':
       params = yaml.safe_load(f)
 
   args = dict(
-      model='yolov8n.pt',
-      data='/content/content/drone_dataset/data.yaml',
+      model=params['model'],
+      data='/content/drone_YOLOv8/drone_dataset/data.yaml',
       imgsz=params['imgsz'],
       batch=params['batch'],
       epochs=params['epochs'],
