@@ -1,0 +1,9 @@
+[core]
+    remote = myremote
+['remote "origin"']
+    url = https://dagshub.com/VadimXBet/drone_YOLOv8.dvc
+['remote "myremote"']
+    url = ../../data
+['remote "origin-s3"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/VadimXBet/drone_YOLOv8.s3

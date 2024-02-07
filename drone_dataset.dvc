@@ -1,0 +1,6 @@
+outs:
+- md5: 8014e969e01262f0577497765334bf55.dir
+  size: 3458278256
+  nfiles: 19486
+  hash: md5
+  path: drone_dataset
