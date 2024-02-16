@@ -1,7 +1,7 @@
 pretrained: True
 seed: 0
 imgsz: 1280 # do not change!!!
-batch: 8
+batch: 16
 epochs: 40
 patience: 5 # choices=[3, 5, 7, 10]
 optimizer: AdamW # choices=[SGD, Adam, Adamax, AdamW, NAdam, RAdam, RMSProp, auto]
