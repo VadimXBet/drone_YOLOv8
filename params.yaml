@@ -2,9 +2,9 @@ pretrained: True
 seed: 0
 imgsz: 1280 # do not change!!!
 batch: 8
-epochs: 15 
+epochs: 40
 patience: 5 # choices=[3, 5, 7, 10]
-optimizer: RAdam # choices=[SGD, Adam, Adamax, AdamW, NAdam, RAdam, RMSProp, auto]
+optimizer: AdamW # choices=[SGD, Adam, Adamax, AdamW, NAdam, RAdam, RMSProp, auto]
 lr0: 0.01  # learning rate 
-name: 'exp' # experiment name
+name: 'exp1' # experiment name
 model: yolov8m.pt # choices=[yolov8n.pt, yolov8s.pt, yolov8m.pt, yolov8l.pt]
