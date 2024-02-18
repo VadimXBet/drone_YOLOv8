@@ -873,7 +873,7 @@ class Albumentations:
 
 
 class AddDrone:
-    def __init__(self, p=0.5):
+    def __init__(self, p=0):
         self.p = p
         self.MY_PATH = os.path.abspath(__file__)
 
