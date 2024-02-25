@@ -881,7 +881,7 @@ class AddDrone:
         if self.p > random.random():
             return labels
 
-        num = 1 if labels["cls"] else random.randint(2, 4)
+        num = 1 if len(labels["cls"]) else random.randint(2, 4)
 
         for i in range(num):
           result = labels["img"]
