@@ -881,82 +881,84 @@ class AddDrone:
         if self.p > random.random():
             return labels
 
-        result = labels["img"]
-        h_bg, w_bg = result.shape[0], result.shape[1]
-        cls = labels["cls"]
+        num = 1 if labels["cls"] else random.randint(2, 4)
 
-        if len(cls):
-            labels["instances"].convert_bbox("xywh")
-            labels["instances"].normalize(*result.shape[:2][::-1])
-            bboxes = labels["instances"].bboxes
+        for i in range(num):
+          result = labels["img"]
+          h_bg, w_bg = result.shape[0], result.shape[1]
+          cls = labels["cls"]
 
-            while True:
-                database_path = os.path.join(*self.MY_PATH.split("/")[3:-1], "solo_2")
-                solo_file = random.choice(os.listdir(database_path))
-                for file in os.listdir(os.path.join(database_path, solo_file)):
-                    if file.split(".")[-2] == "SemanticSegmentation":
-                        mask = cv2.imread(os.path.join(database_path, solo_file, file), cv2.IMREAD_GRAYSCALE)
-                        mask = cv2.threshold(mask, 1, 255, cv2.THRESH_BINARY)[1]
+          labels["instances"].convert_bbox("xywh")
+          labels["instances"].normalize(*result.shape[:2][::-1])
+          bboxes = labels["instances"].bboxes
 
-                    if file.split(".")[-2] == "camera":
-                        img = cv2.imread(os.path.join(database_path, solo_file, file))
-                        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+          while True:
+              database_path = os.path.join(*self.MY_PATH.split("/")[3:-1], "solo_2")
+              solo_file = random.choice(os.listdir(database_path))
+              for file in os.listdir(os.path.join(database_path, solo_file)):
+                  if file.split(".")[-2] == "SemanticSegmentation":
+                      mask = cv2.imread(os.path.join(database_path, solo_file, file), cv2.IMREAD_GRAYSCALE)
+                      mask = cv2.threshold(mask, 1, 255, cv2.THRESH_BINARY)[1]
 
-                tl_x, tl_y, w_mask, h_mask = cv2.boundingRect(mask)
-                if w_mask == h_mask == 0:
-                    continue
-                else:
-                    break
+                  if file.split(".")[-2] == "camera":
+                      img = cv2.imread(os.path.join(database_path, solo_file, file))
+                      img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-            img = cv2.bitwise_and(img, img, mask=mask)
+              tl_x, tl_y, w_mask, h_mask = cv2.boundingRect(mask)
+              if w_mask == h_mask == 0:
+                  continue
+              else:
+                  break
 
-            tl_x, tl_y, w_mask, h_mask = cv2.boundingRect(mask)
-            cropped_img = img[tl_y : (tl_y + h_mask), tl_x : (tl_x + w_mask)]
-            cropped_mask = mask[tl_y : (tl_y + h_mask), tl_x : (tl_x + w_mask)]
+          img = cv2.bitwise_and(img, img, mask=mask)
 
-            scale_coef = random.uniform(0.008, 0.08)
-            scale_w = round(scale_coef * w_bg)
-            scale_w = scale_w if scale_w % 2 == 0 else scale_w + 1
-            scale_h = round(scale_coef * h_bg)
-            scale_h = scale_h if scale_h % 2 == 0 else scale_h + 1
+          tl_x, tl_y, w_mask, h_mask = cv2.boundingRect(mask)
+          cropped_img = img[tl_y : (tl_y + h_mask), tl_x : (tl_x + w_mask)]
+          cropped_mask = mask[tl_y : (tl_y + h_mask), tl_x : (tl_x + w_mask)]
 
-            scale_cropped_img = cv2.resize(cropped_img, (scale_w, scale_h))
-            scale_cropped_mask = cv2.resize(cropped_mask, (scale_w, scale_h))
+          scale_coef = random.uniform(0.008, 0.08)
+          scale_w = round(scale_coef * w_bg)
+          scale_w = scale_w if scale_w % 2 == 0 else scale_w + 1
+          scale_h = round(scale_coef * h_bg)
+          scale_h = scale_h if scale_h % 2 == 0 else scale_h + 1
 
-            h, w = scale_cropped_mask.shape[0], scale_cropped_mask.shape[1]
+          scale_cropped_img = cv2.resize(cropped_img, (scale_w, scale_h))
+          scale_cropped_mask = cv2.resize(cropped_mask, (scale_w, scale_h))
 
-            xc = random.randint(int(w / 2), w_bg - int(w / 2))
-            if (0 < xc < w_bg / 5) or (4 * w_bg / 5 < xc < w_bg):
-                yc = random.randint(int(h / 2), h_bg - int(h / 2))
-            else:
-                if random.randint(0, 1):
-                    yc = random.randint(int(h / 2), int(h_bg / 4) - int(h / 2))
-                else:
-                    yc = random.randint(int(3 * h_bg / 4), int(h_bg) - int(h / 2))
+          h, w = scale_cropped_mask.shape[0], scale_cropped_mask.shape[1]
 
-            result[yc - int(h / 2) : yc + int(h / 2), xc - int(w / 2) : xc + int(w / 2)] = (
-                cv2.bitwise_and(
-                    result[yc - int(h / 2) : yc + int(h / 2), xc - int(w / 2) : xc + int(w / 2)],
-                    result[yc - int(h / 2) : yc + int(h / 2), xc - int(w / 2) : xc + int(w / 2)],
-                    mask=cv2.bitwise_not(scale_cropped_mask),
-                )
-                + scale_cropped_img
-            )
-            if plot_rect:
-                cv2.rectangle(
-                    result, (xc - int(w / 2), yc + int(h / 2)), (xc + int(w / 2), yc - int(h / 2)), (255, 0, 0), 2
-                )
+          xc = random.randint(int(w / 2), w_bg - int(w / 2))
+          if (0 < xc < w_bg / 5) or (4 * w_bg / 5 < xc < w_bg):
+              yc = random.randint(int(h / 2), h_bg - int(h / 2))
+          else:
+              if random.randint(0, 1):
+                  yc = random.randint(int(h / 2), int(h_bg / 4) - int(h / 2))
+              else:
+                  yc = random.randint(int(3 * h_bg / 4), int(h_bg) - int(h / 2))
 
-            labels["img"] = result
-            # cv2.imwrite(os.path.join(*os.path.abspath(__file__).split('/')[3:-1], 'object.png'), result)
-            labels["cls"] = np.append(cls, [[0]])
+          result[yc - int(h / 2) : yc + int(h / 2), xc - int(w / 2) : xc + int(w / 2)] = (
+              cv2.bitwise_and(
+                  result[yc - int(h / 2) : yc + int(h / 2), xc - int(w / 2) : xc + int(w / 2)],
+                  result[yc - int(h / 2) : yc + int(h / 2), xc - int(w / 2) : xc + int(w / 2)],
+                  mask=cv2.bitwise_not(scale_cropped_mask),
+              )
+              + scale_cropped_img
+          )
+          if plot_rect:
+              cv2.rectangle(
+                  result, (xc - int(w / 2), yc + int(h / 2)), (xc + int(w / 2), yc - int(h / 2)), (255, 0, 0), 2
+              )
 
-            res_box = [[xc / w_bg, yc / h_bg, w / w_bg, h / h_bg]]
-            bboxes = np.append(bboxes, res_box, axis=0)
-            labels["instances"].update(bboxes=bboxes)
+          labels["img"] = result
+          # cv2.imwrite(os.path.join(*os.path.abspath(__file__).split('/')[3:-1], 'object.png'), result)
+          labels["cls"] = np.append(cls, [[0]])
 
-            labels["instances"].convert_bbox("xywh")
-            labels["instances"].normalize(*labels["img"].shape[:2][::-1])
+          res_box = [[xc / w_bg, yc / h_bg, w / w_bg, h / h_bg]]
+          bboxes = np.append(bboxes, res_box, axis=0)
+          labels["instances"].update(bboxes=bboxes)
+
+          labels["instances"].convert_bbox("xywh")
+          labels["instances"].normalize(*labels["img"].shape[:2][::-1])
         return labels
 
 
